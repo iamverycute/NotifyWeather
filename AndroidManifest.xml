@@ -32,10 +32,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.iamverylovely.notify.weather.ForegroundService" 
-            
-            android:permission="android.permission.BIND_REMOTEVIEWS" 
-            />
+        <service
+            android:name="com.iamverylovely.notify.weather.ForegroundService"
+            android:label="@string/welcome"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
 </manifest>

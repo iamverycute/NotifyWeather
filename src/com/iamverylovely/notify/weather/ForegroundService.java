@@ -212,11 +212,8 @@ public class ForegroundService extends Service implements Callback {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction() == filter.getAction(0)) {
-				if (Calendar.getInstance().get(Calendar.MINUTE) == 0) {
-					// Do Update Weather
-					updtWeather();
-				}
+			if (intent.getAction() == filter.getAction(0) && Calendar.getInstance().get(Calendar.MINUTE) == 0) {
+				updtWeather();
 			}
 		}
 	}
