@@ -1,0 +1,7 @@
+# imoe .gitignore
+/bin
+/gen
+/libs
+/.settings
+.classpath
+.project
