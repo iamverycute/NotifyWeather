@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/weather_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/weather_refresh"
+        android:id="@+id/first_tips"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/tips" />
 
     <LinearLayout
-        android:id="@+id/weatherInfo"
+        android:id="@+id/weather_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
@@ -56,7 +57,7 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/loadingTips"
+        android:id="@+id/loading_tips"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" >

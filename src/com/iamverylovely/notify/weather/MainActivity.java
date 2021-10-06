@@ -14,10 +14,10 @@ import android.annotation.SuppressLint;
 
 public class MainActivity extends Activity {
 
+	private Button btn;
 	private Intent intent;
 	private PowerManager manager;
 	private boolean isIgnore = false;
-	private Button btn;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

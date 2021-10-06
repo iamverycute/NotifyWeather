@@ -36,9 +36,9 @@ public class ForegroundService extends Service implements Callback {
 	private List<Forecast> list;
 	private Notification notify;
 	private RemoteViews notifyView;
-	private ScreenReceiver receiver;
 	public static boolean isRunning = false;
 	private final OkHttpClient client = new OkHttpClient();
+	private final ScreenReceiver receiver = new ScreenReceiver();
 	private final IntentFilter filter = new IntentFilter(Intent.ACTION_TIME_TICK);
 	private final Request request = new Request.Builder().url("http://wthrcdn.etouch.cn/weather_mini?citykey=101280101").build();
 
@@ -61,20 +61,17 @@ public class ForegroundService extends Service implements Callback {
 		} else {
 			builder = new Notification.Builder(this);
 		}
-		final PendingIntent pi = PendingIntent.getService(getApplicationContext(), 1, new Intent(getApplicationContext(), ForegroundService.class).putExtra("testStr", "updtWeather"), PendingIntent.FLAG_UPDATE_CURRENT);
 		notifyView = new RemoteViews(getPackageName(), R.layout.notify);
-		notifyView.setOnClickPendingIntent(R.id.weatherInfo, pi);
-		notifyView.setOnClickPendingIntent(R.id.weather_refresh, pi);
+		notifyView.setOnClickPendingIntent(R.id.weather_refresh, PendingIntent.getService(getApplicationContext(), 1, new Intent(getApplicationContext(), ForegroundService.class).putExtra("events", "updtWeather"), PendingIntent.FLAG_UPDATE_CURRENT));
 		notify = builder.setCustomContentView(notifyView).setWhen(System.currentTimeMillis()).setSmallIcon(R.drawable.icon_line).setVisibility(Notification.VISIBILITY_PUBLIC).setOngoing(true).build();
 		startForeground(1, notify);
-		receiver = new ScreenReceiver();
 		registerReceiver(receiver, filter);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
-			String data = intent.getStringExtra("testStr");
+			String data = intent.getStringExtra("events");
 			if (data != null) {
 				switch (data) {
 				case "showActivity":
@@ -82,8 +79,9 @@ public class ForegroundService extends Service implements Callback {
 					HideStatusBar();
 					break;
 				case "updtWeather":
-					notifyView.setViewVisibility(R.id.weatherInfo, View.GONE);
-					notifyView.setViewVisibility(R.id.loadingTips, View.VISIBLE);
+					notifyView.setViewVisibility(R.id.first_tips, View.GONE);
+					notifyView.setViewVisibility(R.id.weather_info, View.GONE);
+					notifyView.setViewVisibility(R.id.loading_tips, View.VISIBLE);
 					startForeground(1, notify);
 					updtWeather();
 					break;
@@ -93,28 +91,48 @@ public class ForegroundService extends Service implements Callback {
 		return START_STICKY;
 	}
 
-	private void updtWeather() {
-		if (call != null && !call.isExecuted()) {
-			return;
-		}
-		call = client.newCall(request);
-		call.enqueue(this);
-	}
-
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case 1000:
-				notifyView.setViewVisibility(R.id.weather_refresh, View.GONE);
-				FillTextToView(list);
+				int count = 0;
+				for (Forecast item : list) {
+					String low = item.getLow().substring(2).trim();
+					String w1 = item.getDate().substring(item.getDate().indexOf(getString(R.string.day)) + 1);
+					String w2 = low.substring(0, low.length() - 1) + "~" + item.getHigh().substring(2).trim();
+					String w3 = item.getType().trim();
+					switch (count) {
+					case 0:
+						notifyView.setTextViewText(R.id.day1, w1 + "\n" + w2 + "\n" + w3);
+						break;
+					case 1:
+						notifyView.setTextViewText(R.id.day2, w1 + "\n" + w2 + "\n" + w3);
+						break;
+					case 2:
+						notifyView.setTextViewText(R.id.day3, w1 + "\n" + w2 + "\n" + w3);
+						break;
+					case 3:
+						notifyView.setTextViewText(R.id.day4, w1 + "\n" + w2 + "\n" + w3);
+						break;
+					case 4:
+						notifyView.setTextViewText(R.id.day5, w1 + "\n" + w2 + "\n" + w3);
+						break;
+					default:
+						break;
+					}
+					count++;
+				}
 				break;
 			case 2000:
 				HideStatusBar();
+				if (list == null) {
+					notifyView.setViewVisibility(R.id.first_tips, View.VISIBLE);
+				}
 				Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
 				break;
 			}
-			notifyView.setViewVisibility(R.id.weatherInfo, View.VISIBLE);
-			notifyView.setViewVisibility(R.id.loadingTips, View.GONE);
+			notifyView.setViewVisibility(R.id.weather_info, View.VISIBLE);
+			notifyView.setViewVisibility(R.id.loading_tips, View.GONE);
 			startForeground(1, notify);
 		}
 	};
@@ -178,34 +196,12 @@ public class ForegroundService extends Service implements Callback {
 		}
 	}
 
-	private void FillTextToView(List<Forecast> list) {
-		int count = 0;
-		for (Forecast item : list) {
-			String low = item.getLow().substring(2).trim();
-			String w1 = item.getDate().substring(item.getDate().indexOf(getString(R.string.day)) + 1);
-			String w2 = low.substring(0, low.length() - 1) + "~" + item.getHigh().substring(2).trim();
-			String w3 = item.getType().trim();
-			switch (count) {
-			case 0:
-				notifyView.setTextViewText(R.id.day1, w1 + "\n" + w2 + "\n" + w3);
-				break;
-			case 1:
-				notifyView.setTextViewText(R.id.day2, w1 + "\n" + w2 + "\n" + w3);
-				break;
-			case 2:
-				notifyView.setTextViewText(R.id.day3, w1 + "\n" + w2 + "\n" + w3);
-				break;
-			case 3:
-				notifyView.setTextViewText(R.id.day4, w1 + "\n" + w2 + "\n" + w3);
-				break;
-			case 4:
-				notifyView.setTextViewText(R.id.day5, w1 + "\n" + w2 + "\n" + w3);
-				break;
-			default:
-				break;
-			}
-			count++;
+	private void updtWeather() {
+		if (call != null && !call.isExecuted()) {
+			return;
 		}
+		call = client.newCall(request);
+		call.enqueue(this);
 	}
 
 	class ScreenReceiver extends BroadcastReceiver {
