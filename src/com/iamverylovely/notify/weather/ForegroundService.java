@@ -30,13 +30,14 @@ import android.content.BroadcastReceiver;
 import com.iamverylovely.model.JsonRootBean;
 import java.lang.reflect.InvocationTargetException;
 
-public class ForegroundService extends Service implements Callback {
+public class ForegroundService extends Service implements Callback, Handler.Callback {
 
 	private Call call;
 	private List<Forecast> list;
 	private Notification notify;
 	private RemoteViews notifyView;
 	public static boolean isRunning = false;
+	private final Handler handler = new Handler(this);
 	private final OkHttpClient client = new OkHttpClient();
 	private final ScreenReceiver receiver = new ScreenReceiver();
 	private final IntentFilter filter = new IntentFilter(Intent.ACTION_TIME_TICK);
@@ -91,51 +92,51 @@ public class ForegroundService extends Service implements Callback {
 		return START_STICKY;
 	}
 
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case 1000:
-				int count = 0;
-				for (Forecast item : list) {
-					String low = item.getLow().substring(2).trim();
-					String w1 = item.getDate().substring(item.getDate().indexOf(getString(R.string.day)) + 1);
-					String w2 = low.substring(0, low.length() - 1) + "~" + item.getHigh().substring(2).trim();
-					String w3 = item.getType().trim();
-					switch (count) {
-					case 0:
-						notifyView.setTextViewText(R.id.day1, w1 + "\n" + w2 + "\n" + w3);
-						break;
-					case 1:
-						notifyView.setTextViewText(R.id.day2, w1 + "\n" + w2 + "\n" + w3);
-						break;
-					case 2:
-						notifyView.setTextViewText(R.id.day3, w1 + "\n" + w2 + "\n" + w3);
-						break;
-					case 3:
-						notifyView.setTextViewText(R.id.day4, w1 + "\n" + w2 + "\n" + w3);
-						break;
-					case 4:
-						notifyView.setTextViewText(R.id.day5, w1 + "\n" + w2 + "\n" + w3);
-						break;
-					default:
-						break;
-					}
-					count++;
+	@Override
+	public boolean handleMessage(Message msg) {
+		switch (msg.what) {
+		case 1000:
+			int count = 0;
+			for (Forecast item : list) {
+				String low = item.getLow().substring(2).trim();
+				String w1 = item.getDate().substring(item.getDate().indexOf(getString(R.string.day)) + 1);
+				String w2 = low.substring(0, low.length() - 1) + "~" + item.getHigh().substring(2).trim();
+				String w3 = item.getType().trim();
+				switch (count) {
+				case 0:
+					notifyView.setTextViewText(R.id.day1, w1 + "\n" + w2 + "\n" + w3);
+					break;
+				case 1:
+					notifyView.setTextViewText(R.id.day2, w1 + "\n" + w2 + "\n" + w3);
+					break;
+				case 2:
+					notifyView.setTextViewText(R.id.day3, w1 + "\n" + w2 + "\n" + w3);
+					break;
+				case 3:
+					notifyView.setTextViewText(R.id.day4, w1 + "\n" + w2 + "\n" + w3);
+					break;
+				case 4:
+					notifyView.setTextViewText(R.id.day5, w1 + "\n" + w2 + "\n" + w3);
+					break;
+				default:
+					break;
 				}
-				break;
-			case 2000:
-				HideStatusBar();
-				if (list == null) {
-					notifyView.setViewVisibility(R.id.first_tips, View.VISIBLE);
-				}
-				Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-				break;
+				count++;
 			}
-			notifyView.setViewVisibility(R.id.weather_info, View.VISIBLE);
-			notifyView.setViewVisibility(R.id.loading_tips, View.GONE);
-			startForeground(1, notify);
+			break;
+		case 2000:
+			HideStatusBar();
+			if (list == null) {
+				notifyView.setViewVisibility(R.id.first_tips, View.VISIBLE);
+			}
+			Toast.makeText(getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+			break;
 		}
-	};
+		notifyView.setViewVisibility(R.id.weather_info, View.VISIBLE);
+		notifyView.setViewVisibility(R.id.loading_tips, View.GONE);
+		startForeground(1, notify);
+		return false;
+	}
 
 	@SuppressLint("NewApi")
 	private void HideStatusBar() {
@@ -172,7 +173,7 @@ public class ForegroundService extends Service implements Callback {
 	}
 
 	@Override
-	public void onFailure(Request arg0, IOException arg1) {
+	public void onFailure(Request req, IOException e) {
 		Message msg = Message.obtain();
 		msg.what = 2000;
 		handler.sendMessage(msg);
