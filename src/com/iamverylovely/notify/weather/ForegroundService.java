@@ -70,6 +70,13 @@ public class ForegroundService extends Service implements Callback, Handler.Call
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		isRunning = false;
+		unregisterReceiver(receiver);
+	}
+
+	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
 			String data = intent.getStringExtra("events");
@@ -138,40 +145,6 @@ public class ForegroundService extends Service implements Callback, Handler.Call
 		return false;
 	}
 
-	@SuppressLint("NewApi")
-	private void HideStatusBar() {
-		Object service = getSystemService("statusbar");
-		if (service != null) {
-			Class<?> classObj = null;
-			if (Build.VERSION.SDK_INT >= 29) {
-				classObj = android.app.StatusBarManager.class;
-			} else {
-				try {
-					classObj = Class.forName("android.app.StatusBarManager");
-				} catch (ClassNotFoundException e) {
-				}
-			}
-			if (classObj != null) {
-				try {
-					classObj.getMethod("collapsePanels").invoke(service);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		isRunning = false;
-		unregisterReceiver(receiver);
-	}
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-
 	@Override
 	public void onFailure(Request req, IOException e) {
 		Message msg = Message.obtain();
@@ -205,6 +178,28 @@ public class ForegroundService extends Service implements Callback, Handler.Call
 		call.enqueue(this);
 	}
 
+	@SuppressLint("NewApi")
+	private void HideStatusBar() {
+		Object service = getSystemService("statusbar");
+		if (service != null) {
+			Class<?> classObj = null;
+			if (Build.VERSION.SDK_INT >= 29) {
+				classObj = android.app.StatusBarManager.class;
+			} else {
+				try {
+					classObj = Class.forName("android.app.StatusBarManager");
+				} catch (ClassNotFoundException e) {
+				}
+			}
+			if (classObj != null) {
+				try {
+					classObj.getMethod("collapsePanels").invoke(service);
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				}
+			}
+		}
+	}
+
 	class ScreenReceiver extends BroadcastReceiver {
 
 		@Override
@@ -213,5 +208,10 @@ public class ForegroundService extends Service implements Callback, Handler.Call
 				updtWeather();
 			}
 		}
+	}
+
+	@Override
+	public IBinder onBind(Intent intent) {
+		return null;
 	}
 }
