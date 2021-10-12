@@ -3,6 +3,7 @@
 ### 随便找的LOGO↖↖↖↖↖
 ## 介绍 Notify Weather
 ![GPLv3](https://cdn.jsdelivr.net/gh/iamverycute/NotifyWeather/android.png)
+基于此代码修改部分实现，新版代码在→→→→→[NotifyWeather2](https://github.com/iamverycute/NotifyWeather2)
 
 **不想下载臃肿的天气APP？使用它即可在通知栏上显示天气！**
 
