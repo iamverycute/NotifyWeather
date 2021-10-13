@@ -1,9 +1,8 @@
 ![imoe](https://cdn.jsdelivr.net/gh/iamverycute/NotifyWeather/res/drawable/icon.png)
 
 ### 随便找的LOGO↖↖↖↖↖
-## 介绍 Notify Weather
+## 介绍 Notify Weather，已基于本代码修改部分实现，新版Support API 29（Android10+）代码在→→→→→→→→→[NotifyWeather2](https://github.com/chilicdn/NotifyWeather2)
 ![GPLv3](https://cdn.jsdelivr.net/gh/iamverycute/NotifyWeather/android.png)
-已基于本代码修改部分实现，新版API29（Android10+）代码在→→→→→[NotifyWeather2](https://github.com/chilicdn/NotifyWeather2)
 
 **不想下载臃肿的天气APP？使用它即可在通知栏上显示天气！**
 
